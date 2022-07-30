@@ -1,14 +1,31 @@
 import { Button, Grid } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import ModalComponent from "./ModalComponent";
 
 interface Props {
   text: string;
   setText: React.Dispatch<React.SetStateAction<string>>;
   result: string;
   setResult: React.Dispatch<React.SetStateAction<string>>;
+  setShowResult: React.Dispatch<React.SetStateAction<boolean>>;
+  showResult: boolean;
 }
-const Calculator = ({ text, setText, result, setResult }: Props) => {
-  const operators: string[] = ["+", "-", "*", "/", "="];
+const Calculator: React.FC<Props> = ({
+  text,
+  setText,
+  result,
+  setResult,
+  setShowResult,
+  showResult,
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [history, setHistory] = useState<string[]>(
+    JSON.parse(`${localStorage.getItem("history")}`) || []
+  );
+
+  const operators: string[] = ["+", "-", "*", "/", "=", "."];
   const renderButtons = () => {
     const numbers: number[] = [];
     for (let i = 0; i < 10; i++) {
@@ -21,6 +38,7 @@ const Calculator = ({ text, setText, result, setResult }: Props) => {
   const clear = () => {
     setText("");
     setResult("");
+    setShowResult(false);
   };
   const handleArithmatic = (op: string) => {
     if (
@@ -29,12 +47,24 @@ const Calculator = ({ text, setText, result, setResult }: Props) => {
     ) {
       return;
     }
-
-    setText(text.concat(op));
-
-    if (!operators.includes(op)) {
-      // eslint-disable-next-line no-eval
-      setResult(eval(text + op).toString());
+    if (op === "=") {
+      setShowResult(true);
+    } else {
+      setText(text.concat(op));
+      if (!operators.includes(op)) {
+        // eslint-disable-next-line no-eval
+        setResult(eval(text + op).toString());
+      }
+    }
+  };
+  const takeHistory = () => {
+    handleOpen();
+    if (text || result) {
+      setHistory([...history, `${text} = ${result} `]);
+      localStorage.setItem(
+        "history",
+        JSON.stringify([...history, `${text} = ${result} `])
+      );
     }
   };
 
@@ -42,19 +72,39 @@ const Calculator = ({ text, setText, result, setResult }: Props) => {
     <>
       <Grid
         container
-        spacing={2}
+        sm
         direction="row"
         justifyContent="center"
         alignItems="center"
         sx={{
-          margin: "20px auto",
+          margin: "5px auto",
           padding: "20px",
           borderRadius: "20px",
-
+          width: "70%",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
+        <Grid xs={4}>
+          <Button
+            variant="contained"
+            sx={{ margin: "10px  auto", width: "80%" }}
+            onClick={clear}
+            color="error"
+          >
+            c
+          </Button>
+        </Grid>
+        <Grid xs={4}>
+          <Button
+            variant="contained"
+            sx={{ margin: "10px  auto", width: "80%" }}
+            onClick={takeHistory}
+            color="success"
+          >
+            H
+          </Button>
+        </Grid>
         {operators.map((op: string, i: number) => (
           <Grid xs={4} key={i}>
             <Button
@@ -66,15 +116,7 @@ const Calculator = ({ text, setText, result, setResult }: Props) => {
             </Button>
           </Grid>
         ))}
-        <Grid xs={4}>
-          <Button
-            variant="contained"
-            sx={{ margin: "10px  auto", width: "80%" }}
-            onClick={clear}
-          >
-            c
-          </Button>
-        </Grid>
+
         {numbers.map((num: number) => (
           <Grid xs={4}>
             <Button
@@ -88,6 +130,7 @@ const Calculator = ({ text, setText, result, setResult }: Props) => {
           </Grid>
         ))}
       </Grid>
+      <ModalComponent open={open} handleClose={handleClose} history={history} />
     </>
   );
 };
