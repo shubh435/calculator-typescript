@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Typography } from "@mui/material";
+import { Box, Container } from "@mui/system";
+import React, { useState } from "react";
+import Calculator from "./Components/Calculator";
+import TextInput from "./Components/TextInput";
 
-function App() {
+const App = () => {
+  const [text, setText] = useState<string>("");
+  const [result, setResult] = useState<string>("");
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Box>
+      <Container>
+        <Box sx={{ margin: "20px auto" }}>
+          <Typography align="center" variant="h3">
+            Simple Calculator
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            backgroundColor: "#ccc",
+            padding: "20px",
+            borderRadius: "20px",
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <TextInput text={text} result={result} />
+          <Calculator
+            text={text}
+            setText={setText}
+            result={result}
+            setResult={setResult}
+          />
+        </Box>
+      </Container>
+    </Box>
   );
-}
+};
 
 export default App;
