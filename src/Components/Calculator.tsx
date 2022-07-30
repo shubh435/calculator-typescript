@@ -1,6 +1,5 @@
 import { Button, Grid } from "@mui/material";
-import React, { useState } from "react";
-import ModalComponent from "./ModalComponent";
+import React from "react";
 
 interface Props {
   text: string;
@@ -9,6 +8,9 @@ interface Props {
   setResult: React.Dispatch<React.SetStateAction<string>>;
   setShowResult: React.Dispatch<React.SetStateAction<boolean>>;
   showResult: boolean;
+  setShowHistory: React.Dispatch<React.SetStateAction<boolean>>;
+  history: string[];
+  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
 }
 const Calculator: React.FC<Props> = ({
   text,
@@ -17,14 +19,13 @@ const Calculator: React.FC<Props> = ({
   setResult,
   setShowResult,
   showResult,
+  setShowHistory,
+  setHistory,
+  history,
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const [history, setHistory] = useState<string[]>(
-    JSON.parse(`${localStorage.getItem("history")}`) || []
-  );
-
+  // const [history, setHistory] = useState<string[]>(
+  //   JSON.parse(`${localStorage.getItem("history")}`) || []
+  // );
   const operators: string[] = ["+", "-", "*", "/", "=", "."];
   const renderButtons = () => {
     const numbers: number[] = [];
@@ -49,6 +50,7 @@ const Calculator: React.FC<Props> = ({
     }
     if (op === "=") {
       setShowResult(true);
+      takeHistory();
     } else {
       setText(text.concat(op));
       if (!operators.includes(op)) {
@@ -58,7 +60,7 @@ const Calculator: React.FC<Props> = ({
     }
   };
   const takeHistory = () => {
-    handleOpen();
+    // handleOpen();
     if (text || result) {
       setHistory([...history, `${text} = ${result} `]);
       localStorage.setItem(
@@ -99,7 +101,10 @@ const Calculator: React.FC<Props> = ({
           <Button
             variant="contained"
             sx={{ margin: "10px  auto", width: "80%" }}
-            onClick={takeHistory}
+            onClick={() => {
+              setShowHistory(true);
+              // takeHistory();
+            }}
             color="success"
           >
             H
@@ -130,7 +135,6 @@ const Calculator: React.FC<Props> = ({
           </Grid>
         ))}
       </Grid>
-      <ModalComponent open={open} handleClose={handleClose} history={history} />
     </>
   );
 };
